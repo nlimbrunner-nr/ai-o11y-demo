@@ -14,6 +14,7 @@ permissions:
 env:
   AWS_REGION: us-east-1
   TF_VAR_github_repo: ${{ github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   TF_VAR_app_name: ai-o11y
   TF_VAR_aws_region: us-east-1
 
