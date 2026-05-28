@@ -363,7 +363,7 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
                   </Typography>
                 </Box>
                 <Typography sx={{ color: '#ffffff', fontSize: '1.2rem', fontWeight: 600 }}>
-                  {vehicle?.tirePressure ?? 0} PSI
+                  {vehicle?.tirePressure ?? 0} Bar
                 </Typography>
               </Box>
             </Box>
