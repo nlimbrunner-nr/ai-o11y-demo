@@ -117,21 +117,7 @@ resource "aws_iam_role" "github_actions" {
 }
 
 data "aws_iam_policy_document" "github_actions_deploy" {
-  # Update Lambda function code
-  statement {
-    effect = "Allow"
-    actions = [
-      "lambda:UpdateFunctionCode",
-      "lambda:GetFunction",
-      "lambda:GetFunctionConfiguration",
-    ]
-    resources = [
-      "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:ai-o11y-chat",
-      "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:ai-o11y-graphql",
-    ]
-  }
-
-  # Read/write Terraform remote state
+  # Terraform remote state — S3
   statement {
     effect = "Allow"
     actions = [
@@ -146,7 +132,7 @@ data "aws_iam_policy_document" "github_actions_deploy" {
     ]
   }
 
-  # DynamoDB state lock
+  # Terraform remote state — DynamoDB lock
   statement {
     effect = "Allow"
     actions = [
@@ -157,6 +143,110 @@ data "aws_iam_policy_document" "github_actions_deploy" {
     resources = [
       "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/ai-o11y-terraform-lock",
     ]
+  }
+
+  # Lambda — full lifecycle + permissions management
+  statement {
+    effect = "Allow"
+    actions = [
+      "lambda:CreateFunction",
+      "lambda:DeleteFunction",
+      "lambda:GetFunction",
+      "lambda:GetFunctionConfiguration",
+      "lambda:GetFunctionCodeSigningConfig",
+      "lambda:GetPolicy",
+      "lambda:ListVersionsByFunction",
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:TagResource",
+      "lambda:UntagResource",
+    ]
+    resources = [
+      "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:ai-o11y-chat",
+      "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:ai-o11y-graphql",
+    ]
+  }
+
+  # IAM — manage roles, inline policies, and managed policy attachments
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:GetRole",
+      "iam:CreateRole",
+      "iam:UpdateRole",
+      "iam:DeleteRole",
+      "iam:TagRole",
+      "iam:UntagRole",
+      "iam:ListRolePolicies",
+      "iam:GetRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:ListAttachedRolePolicies",
+      "iam:AttachRolePolicy",
+      "iam:DetachRolePolicy",
+      "iam:PassRole",
+    ]
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ai-o11y-*",
+    ]
+  }
+
+  # IAM — OIDC provider lifecycle
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:GetOpenIDConnectProvider",
+      "iam:CreateOpenIDConnectProvider",
+      "iam:DeleteOpenIDConnectProvider",
+      "iam:UpdateOpenIDConnectProviderThumbprint",
+      "iam:AddClientIDToOpenIDConnectProvider",
+      "iam:RemoveClientIDFromOpenIDConnectProvider",
+      "iam:TagOpenIDConnectProvider",
+      "iam:UntagOpenIDConnectProvider",
+    ]
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com",
+    ]
+  }
+
+  # Cognito — user pool, app client, and domain lifecycle
+  statement {
+    effect = "Allow"
+    actions = [
+      "cognito-idp:DescribeUserPool",
+      "cognito-idp:CreateUserPool",
+      "cognito-idp:UpdateUserPool",
+      "cognito-idp:DeleteUserPool",
+      "cognito-idp:DescribeUserPoolClient",
+      "cognito-idp:CreateUserPoolClient",
+      "cognito-idp:UpdateUserPoolClient",
+      "cognito-idp:DeleteUserPoolClient",
+      "cognito-idp:DescribeUserPoolDomain",
+      "cognito-idp:CreateUserPoolDomain",
+      "cognito-idp:DeleteUserPoolDomain",
+      "cognito-idp:ListTagsForResource",
+      "cognito-idp:TagResource",
+      "cognito-idp:UntagResource",
+      "cognito-idp:SetUserPoolMfaConfig",
+      "cognito-idp:GetUserPoolMfaConfig",
+    ]
+    resources = ["*"]
+  }
+
+  # API Gateway v2 — full lifecycle
+  statement {
+    effect = "Allow"
+    actions = [
+      "apigateway:GET",
+      "apigateway:POST",
+      "apigateway:PUT",
+      "apigateway:PATCH",
+      "apigateway:DELETE",
+      "apigateway:TagResource",
+    ]
+    resources = ["arn:aws:apigateway:${var.aws_region}::*"]
   }
 }
 

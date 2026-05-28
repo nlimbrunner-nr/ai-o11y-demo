@@ -11,7 +11,7 @@ permissions:
   contents: write   # needed to push to gh-pages branch
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "26"
 
 jobs:
   deploy:
