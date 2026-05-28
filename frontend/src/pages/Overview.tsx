@@ -200,7 +200,7 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
             <Box sx={{ textAlign: 'center', mb: 3 }}>
               {!carImageError ? (
                 <img
-                  src="/images/porsche.png"
+                  src={`${process.env.PUBLIC_URL}/images/porsche.png`}
                   alt="Vehicle"
                   onError={() => setCarImageError(true)}
                   style={{

@@ -50,7 +50,7 @@ export const Navigation: React.FC<NavigationProps> = ({ userEmail, signOut: ampl
             letterSpacing: '-0.01em',
           }}
         >
-          AI Car Demo
+          AI O11y Automotive Demo
         </Typography>
 
         {/* User Info + Sign Out */}

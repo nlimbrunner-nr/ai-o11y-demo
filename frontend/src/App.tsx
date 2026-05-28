@@ -163,7 +163,7 @@ function App() {
                       lineHeight: 1.1,
                     }}
                   >
-                    AI Car Demo
+                    AI O11y Automotive Demo
                   </Typography>
                   <Typography
                     sx={{

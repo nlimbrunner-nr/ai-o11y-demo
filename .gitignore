@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Reference
+new-relic-demo/
+
 # Editor
 .idea/
 .vscode/
