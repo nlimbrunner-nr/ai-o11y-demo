@@ -43,6 +43,15 @@ data "aws_iam_policy_document" "bedrock_invoke" {
     actions   = ["bedrock-agentcore:*"]
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "aws-marketplace:ViewSubscriptions",
+      "aws-marketplace:Subscribe",
+    ]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "chat_lambda_bedrock" {

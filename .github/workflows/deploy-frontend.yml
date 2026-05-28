@@ -48,9 +48,8 @@ jobs:
         run: npm run build
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: frontend/build
-          # Keeps the gh-pages branch history clean
-          force_orphan: true
+          folder: frontend/build
+          branch: gh-pages
+          force: true
