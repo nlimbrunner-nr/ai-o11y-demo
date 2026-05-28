@@ -1,10 +1,10 @@
 [
   {
     "email": "nlimbrunner@newrelic.com",
-    "name": "Demo User",
+    "name": "Nikolai Limbrunner",
     "vehicle": {
-      "id": "VW-ID4-001",
-      "model": "VW ID.4 Pro",
+      "id": "PorscheTaycan",
+      "model": "Porsche Taycan",
       "batteryLevel": 78,
       "rangeKm": 340,
       "totalKm": 12450,
