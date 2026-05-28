@@ -2,6 +2,8 @@
 
 A car companion app that demonstrates AI observability patterns using AWS Bedrock, Strands Agents, and AgentCore Memory. Users authenticate via Cognito and chat with an AI assistant that has live access to their vehicle data.
 
+https://nlimbrunner-nr.github.io/ai-o11y-demo/
+
 ---
 
 ## Architecture
