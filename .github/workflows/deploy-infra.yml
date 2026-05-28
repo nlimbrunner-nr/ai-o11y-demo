@@ -10,7 +10,6 @@ on:
 permissions:
   id-token: write   # OIDC token for AWS
   contents: read
-  actions: write    # gh variable set
 
 env:
   AWS_REGION: us-east-1
@@ -55,7 +54,7 @@ jobs:
 
       - name: Export outputs as GitHub Actions variables
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           API_URL=$(terraform output -raw api_url)
           POOL_ID=$(terraform output -raw cognito_user_pool_id)
