@@ -1,0 +1,18 @@
+[
+  {
+    "email": "nlimbrunner@newrelic.com",
+    "name": "Demo User",
+    "vehicle": {
+      "id": "VW-ID4-001",
+      "model": "VW ID.4 Pro",
+      "batteryLevel": 78,
+      "rangeKm": 340,
+      "totalKm": 12450,
+      "nextServiceKm": 20000,
+      "tirePressure": 2.4,
+      "softwareVersion": "3.2.1",
+      "isLocked": true,
+      "lastUpdated": "2026-05-27T10:00:00Z"
+    }
+  }
+]

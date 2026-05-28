@@ -1,0 +1,74 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - terraform/**
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # OIDC token for AWS
+  contents: read
+  actions: write    # gh variable set
+
+env:
+  AWS_REGION: us-east-1
+  TF_VAR_github_repo: ${{ github.repository }}
+  TF_VAR_app_name: ai-o11y
+  TF_VAR_aws_region: us-east-1
+
+jobs:
+  terraform:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ai-o11y-github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
+      - name: Export outputs as GitHub Actions variables
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          API_URL=$(terraform output -raw api_url)
+          POOL_ID=$(terraform output -raw cognito_user_pool_id)
+          CLIENT_ID=$(terraform output -raw cognito_client_id)
+          REGION=$(terraform output -raw cognito_region)
+          DOMAIN=$(terraform output -raw cognito_domain)
+
+          gh variable set REACT_APP_API_URL             --body "$API_URL"    --repo "${{ github.repository }}"
+          gh variable set REACT_APP_COGNITO_USER_POOL_ID --body "$POOL_ID"   --repo "${{ github.repository }}"
+          gh variable set REACT_APP_COGNITO_CLIENT_ID    --body "$CLIENT_ID" --repo "${{ github.repository }}"
+          gh variable set REACT_APP_COGNITO_REGION       --body "$REGION"    --repo "${{ github.repository }}"
+          gh variable set REACT_APP_COGNITO_DOMAIN       --body "$DOMAIN"    --repo "${{ github.repository }}"
+
+          echo "Infrastructure deployed successfully."
+          echo "  API URL: $API_URL"
+          echo "  Cognito Pool: $POOL_ID"

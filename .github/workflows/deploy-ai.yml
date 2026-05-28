@@ -1,0 +1,55 @@
+name: Deploy Python AI Chat Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ai/**
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  LAMBDA_FUNCTION: ai-o11y-chat
+
+jobs:
+  deploy:
+    name: Build & Deploy Python Lambda
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ai-o11y-github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build Lambda zip
+        # Installs deps into package/, copies source files, zips everything
+        run: make build
+
+      - name: Update Lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ env.LAMBDA_FUNCTION }} \
+            --zip-file fileb://function.zip \
+            --architectures arm64
+
+      - name: Wait for Lambda update to complete
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ env.LAMBDA_FUNCTION }}
+          echo "Lambda ${{ env.LAMBDA_FUNCTION }} updated successfully."

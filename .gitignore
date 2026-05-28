@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Frontend ──────────────────────────────────────────────
+node_modules/
+frontend/build/
+frontend/.env.local
+frontend/.env.*.local
+
+# ── AI (Python) ───────────────────────────────────────────
+ai/venv/
+ai/__pycache__/
+ai/**/__pycache__/
+ai/*.pyc
+ai/function.zip
+
+# ── Backend (Go) ──────────────────────────────────────────
+backend/backend
+backend/bootstrap
+backend/bootstrap_local
+backend/function.zip
+
+# ── Terraform ─────────────────────────────────────────────
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.placeholder/
+terraform/terraform.tfvars
+terraform/bootstrap/.terraform/
+terraform/bootstrap/.terraform.lock.hcl
+terraform/bootstrap/terraform.tfstate
+terraform/bootstrap/terraform.tfstate.backup

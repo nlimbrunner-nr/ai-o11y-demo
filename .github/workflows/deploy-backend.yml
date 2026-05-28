@@ -1,0 +1,61 @@
+name: Deploy Go GraphQL Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - backend/**
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  LAMBDA_FUNCTION: ai-o11y-graphql
+
+jobs:
+  deploy:
+    name: Build & Deploy Go Lambda
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ai-o11y-github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache-dependency-path: backend/go.sum
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build Lambda binary (arm64)
+        run: GOOS=linux GOARCH=arm64 go build -o bootstrap main.go
+
+      - name: Package for Lambda
+        run: zip function.zip bootstrap data/users.json
+
+      - name: Update Lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ env.LAMBDA_FUNCTION }} \
+            --zip-file fileb://function.zip \
+            --architectures arm64
+
+      - name: Wait for Lambda update to complete
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ env.LAMBDA_FUNCTION }}
+          echo "Lambda ${{ env.LAMBDA_FUNCTION }} updated successfully."

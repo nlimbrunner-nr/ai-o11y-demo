@@ -1,0 +1,22 @@
+type Query {
+  user(email: String!): User
+}
+
+type User {
+  email:   String!
+  name:    String!
+  vehicle: Vehicle!
+}
+
+type Vehicle {
+  id:              ID!
+  model:           String!
+  batteryLevel:    Int!
+  rangeKm:         Int!
+  totalKm:         Int!
+  nextServiceKm:   Int!
+  tirePressure:    Float!
+  softwareVersion: String!
+  isLocked:        Boolean!
+  lastUpdated:     String!
+}
