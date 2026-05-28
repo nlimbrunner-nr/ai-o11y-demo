@@ -34,7 +34,7 @@ COGNITO_REGION = os.environ.get("COGNITO_REGION", "us-east-1")
 BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "us-east-1")
 BEDROCK_MODEL_ID = os.environ.get(
     "BEDROCK_MODEL_ID",
-    "us.anthropic.claude-sonnet-4-6-20250514-v1:0",
+    "us.anthropic.claude-sonnet-4-6",
 )
 AGENTCORE_MEMORY_ID = os.environ.get("AGENTCORE_MEMORY_ID", "")
 

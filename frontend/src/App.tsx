@@ -11,85 +11,85 @@ import { Overview } from './pages/Overview';
 
 Amplify.configure(amplifyConfig);
 
-// Custom Amplify theme matching dark aesthetic
+// Custom Amplify theme — clean dark
 const amplifyTheme: Theme = {
   name: 'dark-car-theme',
   tokens: {
     colors: {
       background: {
-        primary: '#0d1424',
-        secondary: '#0a0f1e',
+        primary: '#111113',
+        secondary: '#09090b',
       },
       font: {
-        primary: '#ffffff',
-        secondary: 'rgba(255, 255, 255, 0.7)',
-        interactive: '#ffffff',
+        primary: '#fafafa',
+        secondary: '#a1a1aa',
+        interactive: '#fafafa',
       },
       brand: {
         primary: {
-          10: 'rgba(255, 255, 255, 0.05)',
-          20: 'rgba(255, 255, 255, 0.1)',
-          40: 'rgba(255, 255, 255, 0.3)',
-          60: 'rgba(255, 255, 255, 0.6)',
-          80: 'rgba(255, 255, 255, 0.8)',
-          90: '#ffffff',
+          10: 'rgba(255, 255, 255, 0.04)',
+          20: 'rgba(255, 255, 255, 0.08)',
+          40: 'rgba(255, 255, 255, 0.2)',
+          60: 'rgba(255, 255, 255, 0.5)',
+          80: 'rgba(255, 255, 255, 0.85)',
+          90: '#fafafa',
           100: '#ffffff',
         },
       },
       border: {
-        primary: 'rgba(255, 255, 255, 0.2)',
-        secondary: 'rgba(255, 255, 255, 0.1)',
+        primary: 'rgba(255, 255, 255, 0.15)',
+        secondary: 'rgba(255, 255, 255, 0.08)',
       },
     },
     components: {
       authenticator: {
         router: {
           borderWidth: '1px',
-          borderColor: 'rgba(255, 255, 255, 0.15)',
-          backgroundColor: 'rgba(15, 25, 45, 0.9)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          borderColor: 'rgba(255, 255, 255, 0.09)',
+          backgroundColor: 'rgba(17, 17, 19, 0.95)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
         },
       },
       button: {
         primary: {
-          backgroundColor: 'rgba(255, 255, 255, 0.15)',
-          color: '#ffffff',
+          backgroundColor: '#fafafa',
+          color: '#09090b',
           _hover: {
-            backgroundColor: 'rgba(255, 255, 255, 0.25)',
+            backgroundColor: '#e4e4e7',
           },
           _focus: {
-            backgroundColor: 'rgba(255, 255, 255, 0.25)',
+            backgroundColor: '#e4e4e7',
             boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.3)',
           },
           _active: {
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            backgroundColor: '#d4d4d8',
           },
         },
         link: {
-          color: 'rgba(255, 255, 255, 0.7)',
+          color: '#a1a1aa',
           _hover: {
-            color: '#ffffff',
+            color: '#fafafa',
           },
         },
       },
       fieldcontrol: {
         borderRadius: '4px',
-        borderColor: 'rgba(255, 255, 255, 0.2)',
-        color: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.14)',
+        color: '#fafafa',
         _focus: {
-          borderColor: 'rgba(255, 255, 255, 0.5)',
-          boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.3)',
+          borderColor: 'rgba(255, 255, 255, 0.35)',
+          boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.15)',
         },
       },
       tabs: {
         item: {
-          color: 'rgba(255, 255, 255, 0.5)',
+          color: '#52525b',
           _hover: {
-            color: 'rgba(255, 255, 255, 0.8)',
+            color: '#a1a1aa',
           },
           _active: {
-            borderColor: '#ffffff',
-            color: '#ffffff',
+            borderColor: '#fafafa',
+            color: '#fafafa',
           },
         },
       },
@@ -118,7 +118,7 @@ function AppContent({ userEmail, signOut }: AppContentProps) {
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: '#0a0f1e',
+        backgroundColor: '#09090b',
         pt: '72px',
       }}
     >
@@ -135,7 +135,7 @@ function App() {
       <Box
         sx={{
           minHeight: '100vh',
-          backgroundColor: '#0a0f1e',
+          backgroundColor: '#09090b',
         }}
       >
         <Authenticator
@@ -156,7 +156,7 @@ function App() {
                     sx={{
                       fontSize: { xs: '2rem', sm: '2.5rem' },
                       fontWeight: 700,
-                      color: '#ffffff',
+                      color: '#fafafa',
                       letterSpacing: '-0.02em',
                       fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
                       mb: 0.5,
@@ -168,7 +168,7 @@ function App() {
                   <Typography
                     sx={{
                       fontSize: '0.9rem',
-                      color: 'rgba(255, 255, 255, 0.6)',
+                      color: '#71717a',
                       fontWeight: 400,
                     }}
                   >
@@ -227,7 +227,7 @@ function AppContentWrapper({ loginId, signOut }: AppContentWrapperProps) {
           minHeight: '100vh',
         }}
       >
-        <CircularProgress sx={{ color: '#ffffff' }} />
+        <CircularProgress sx={{ color: '#a1a1aa' }} />
       </Box>
     );
   }

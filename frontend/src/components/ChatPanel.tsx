@@ -2,15 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   TextField,
   InputAdornment,
   IconButton,
   CircularProgress,
   Tooltip,
 } from '@mui/material';
-import { Send as SendIcon, RestartAlt as ResetIcon } from '@mui/icons-material';
+import { Send as SendIcon, RestartAlt as ResetIcon, Close as CloseIcon } from '@mui/icons-material';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import toast from 'react-hot-toast';
 
@@ -22,16 +20,16 @@ interface ChatMessage {
 interface ChatPanelProps {
   vehicleId?: string;
   height?: string;
+  onClose?: () => void;
 }
 
-export const ChatPanel: React.FC<ChatPanelProps> = ({ vehicleId, height = '100%' }) => {
+export const ChatPanel: React.FC<ChatPanelProps> = ({ vehicleId, height = '100%', onClose }) => {
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isSendingMessage]);
@@ -48,7 +46,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ vehicleId, height = '100%'
     setChatMessages(updatedMessages);
 
     try {
-      // Get auth token and user email from Cognito
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
 
@@ -87,10 +84,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ vehicleId, height = '100%'
     } catch (error) {
       console.error('Chat error:', error);
       toast.error('Failed to send message', {
-        style: {
-          background: '#1a1e30',
-          color: '#fff',
-        },
+        style: { background: '#18181b', color: '#fafafa' },
       });
     } finally {
       setIsSendingMessage(false);
@@ -101,10 +95,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ vehicleId, height = '100%'
     setChatMessages([]);
     setSessionId(crypto.randomUUID());
     toast.success('Chat reset', {
-      style: {
-        background: '#1a1e30',
-        color: '#fff',
-      },
+      style: { background: '#18181b', color: '#fafafa' },
     });
   };
 
@@ -116,204 +107,185 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ vehicleId, height = '100%'
   };
 
   return (
-    <Card
-      elevation={0}
+    <Box
       sx={{
         width: '100%',
-        height: height,
-        backgroundColor: 'rgba(15, 25, 45, 0.65)',
-        backgroundImage: 'linear-gradient(135deg, rgba(20, 30, 60, 0.6), rgba(30, 20, 50, 0.6))',
-        backdropFilter: 'blur(15px)',
-        borderRadius: 3,
-        border: '1px solid rgba(255, 255, 255, 0.15)',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
       }}
     >
-      <CardContent
+      {/* Header */}
+      <Box
         sx={{
-          p: 3,
+          flexShrink: 0,
           display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          overflow: 'hidden',
-          '&:last-child': { pb: 3 },
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2,
+          pb: 2,
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         }}
       >
-        {/* Chat Header */}
-        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography
-            sx={{
-              color: '#ffffff',
-              fontSize: '1.1rem',
-              fontWeight: 600,
-            }}
-          >
-            Chat with your Car
-          </Typography>
+        <Typography
+          sx={{
+            color: '#fafafa',
+            fontSize: '1rem',
+            fontWeight: 600,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          Chat with your Car
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {chatMessages.length > 0 && (
             <Tooltip title="Reset chat">
               <IconButton
                 onClick={handleResetChat}
                 disabled={isSendingMessage}
-                sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    color: '#ffffff',
-                  },
-                  '&.Mui-disabled': {
-                    color: 'rgba(255, 255, 255, 0.3)',
-                  },
-                }}
                 size="small"
+                sx={{
+                  color: '#71717a',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.06)', color: '#fafafa' },
+                  '&.Mui-disabled': { color: 'rgba(113, 113, 122, 0.3)' },
+                }}
               >
                 <ResetIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           )}
-        </Box>
-
-        {/* Chat Messages Area */}
-        <Box
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            borderRadius: 1,
-            p: 2,
-            mb: 2,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            '&::-webkit-scrollbar': {
-              width: '8px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: '4px',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'rgba(255, 255, 255, 0.3)',
-              borderRadius: '4px',
-              '&:hover': {
-                background: 'rgba(255, 255, 255, 0.5)',
-              },
-            },
-          }}
-        >
-          {chatMessages.length === 0 ? (
-            <Typography
-              sx={{
-                color: 'rgba(255, 255, 255, 0.6)',
-                fontSize: '0.875rem',
-                fontStyle: 'italic',
-              }}
-            >
-              Ask me anything about your vehicle...
-            </Typography>
-          ) : (
-            chatMessages.map((message, index) => (
-              <Box
-                key={index}
+          {onClose && (
+            <Tooltip title="Close">
+              <IconButton
+                onClick={onClose}
+                size="small"
                 sx={{
-                  alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '80%',
+                  color: '#71717a',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.06)', color: '#fafafa' },
                 }}
               >
-                <Box
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    backgroundColor:
-                      message.role === 'user'
-                        ? 'rgba(255, 255, 255, 0.2)'
-                        : 'rgba(255, 255, 255, 0.1)',
-                    border:
-                      message.role === 'user'
-                        ? '1px solid rgba(255, 255, 255, 0.3)'
-                        : '1px solid rgba(255, 255, 255, 0.15)',
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: '#ffffff',
-                      fontSize: '0.875rem',
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {message.content}
-                  </Typography>
-                </Box>
-              </Box>
-            ))
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           )}
-          {isSendingMessage && (
-            <Box sx={{ alignSelf: 'flex-start' }}>
-              <CircularProgress size={20} sx={{ color: 'rgba(255, 255, 255, 0.6)' }} />
-            </Box>
-          )}
-          {/* Invisible scroll anchor */}
-          <div ref={messagesEndRef} />
         </Box>
+      </Box>
 
-        {/* Chat Input */}
-        <TextField
-          fullWidth
-          placeholder="Type a message..."
-          variant="outlined"
-          size="small"
-          value={chatInput}
-          onChange={(e) => setChatInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isSendingMessage}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              color: '#ffffff',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '& fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.3)',
-              },
-              '&:hover fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.7)',
-              },
-            },
-            '& .MuiInputBase-input::placeholder': {
-              color: 'rgba(255, 255, 255, 0.5)',
-              opacity: 1,
-            },
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  edge="end"
-                  onClick={sendChatMessage}
-                  disabled={!chatInput.trim() || isSendingMessage}
+      {/* Messages area */}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          p: 0,
+          mb: 2,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1.5,
+          '&::-webkit-scrollbar': { width: '4px' },
+          '&::-webkit-scrollbar-track': { background: 'transparent' },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(255, 255, 255, 0.15)',
+            borderRadius: '2px',
+          },
+        }}
+      >
+        {chatMessages.length === 0 ? (
+          <Typography
+            sx={{
+              color: '#52525b',
+              fontSize: '0.875rem',
+              fontStyle: 'italic',
+            }}
+          >
+            Ask me anything about your vehicle...
+          </Typography>
+        ) : (
+          chatMessages.map((message, index) => (
+            <Box
+              key={index}
+              sx={{
+                alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
+                maxWidth: '85%',
+              }}
+            >
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2,
+                  backgroundColor:
+                    message.role === 'user' ? '#0ea5e9' : 'rgba(255, 255, 255, 0.06)',
+                  border: message.role === 'user' ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
+                }}
+              >
+                <Typography
                   sx={{
-                    color: '#ffffff',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    },
-                    '&.Mui-disabled': {
-                      color: 'rgba(255, 255, 255, 0.3)',
-                    },
+                    color: message.role === 'user' ? '#fff' : '#e4e4e7',
+                    fontSize: '0.875rem',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    lineHeight: 1.55,
                   }}
                 >
-                  <SendIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </CardContent>
-    </Card>
+                  {message.content}
+                </Typography>
+              </Box>
+            </Box>
+          ))
+        )}
+        {isSendingMessage && (
+          <Box sx={{ alignSelf: 'flex-start' }}>
+            <CircularProgress size={18} sx={{ color: '#71717a' }} />
+          </Box>
+        )}
+        <div ref={messagesEndRef} />
+      </Box>
+
+      {/* Input */}
+      <TextField
+        fullWidth
+        placeholder="Type a message..."
+        variant="outlined"
+        size="small"
+        value={chatInput}
+        onChange={(e) => setChatInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        disabled={isSendingMessage}
+        sx={{
+          flexShrink: 0,
+          '& .MuiOutlinedInput-root': {
+            color: '#fafafa',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            borderRadius: 2,
+            '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.12)' },
+            '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.25)' },
+            '&.Mui-focused fieldset': { borderColor: 'rgba(14, 165, 233, 0.6)' },
+          },
+          '& .MuiInputBase-input::placeholder': {
+            color: '#52525b',
+            opacity: 1,
+          },
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                edge="end"
+                onClick={sendChatMessage}
+                disabled={!chatInput.trim() || isSendingMessage}
+                sx={{
+                  color: '#0ea5e9',
+                  '&:hover': { backgroundColor: 'rgba(14, 165, 233, 0.1)' },
+                  '&.Mui-disabled': { color: 'rgba(255, 255, 255, 0.2)' },
+                }}
+              >
+                <SendIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+    </Box>
   );
 };

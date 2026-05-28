@@ -21,8 +21,8 @@ export const Navigation: React.FC<NavigationProps> = ({ userEmail, signOut: ampl
       console.error('Sign out error:', error);
       toast.error('Failed to sign out', {
         style: {
-          background: '#1a1e30',
-          color: '#fff',
+          background: '#18181b',
+          color: '#fafafa',
         },
       });
     }
@@ -33,9 +33,9 @@ export const Navigation: React.FC<NavigationProps> = ({ userEmail, signOut: ampl
       position="fixed"
       elevation={0}
       sx={{
-        backgroundColor: 'rgba(10, 15, 30, 0.85)',
+        backgroundColor: 'rgba(9, 9, 11, 0.88)',
         backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
@@ -45,7 +45,7 @@ export const Navigation: React.FC<NavigationProps> = ({ userEmail, signOut: ampl
           variant="h6"
           sx={{
             fontWeight: 700,
-            color: '#ffffff',
+            color: '#fafafa',
             fontSize: '1.1rem',
             letterSpacing: '-0.01em',
           }}
@@ -57,7 +57,7 @@ export const Navigation: React.FC<NavigationProps> = ({ userEmail, signOut: ampl
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Typography
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: '#a1a1aa',
               fontSize: '0.875rem',
               display: { xs: 'none', sm: 'block' },
             }}
@@ -69,12 +69,12 @@ export const Navigation: React.FC<NavigationProps> = ({ userEmail, signOut: ampl
             startIcon={<LogoutIcon />}
             size="small"
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: '#a1a1aa',
               textTransform: 'none',
               fontSize: '0.875rem',
               '&:hover': {
-                color: '#ffffff',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: '#fafafa',
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
               },
             }}
           >

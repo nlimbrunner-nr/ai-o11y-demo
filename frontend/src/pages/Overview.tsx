@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import {
   Container,
@@ -9,6 +9,9 @@ import {
   LinearProgress,
   CircularProgress,
   Button,
+  Drawer,
+  Fab,
+  Tooltip,
 } from '@mui/material';
 import {
   Lock as LockIcon,
@@ -18,6 +21,7 @@ import {
   Build as BuildIcon,
   TireRepair as TireIcon,
   Refresh as RefreshIcon,
+  Chat as ChatIcon,
 } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { ChatPanel } from '../components/ChatPanel';
@@ -79,23 +83,46 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
   });
 
   const [carImageError, setCarImageError] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [drawerWidth, setDrawerWidth] = useState(420);
+  const isResizing = useRef(false);
+
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizing.current) return;
+      const newWidth = window.innerWidth - moveEvent.clientX;
+      setDrawerWidth(Math.min(Math.max(newWidth, 280), 800));
+    };
+
+    const onMouseUp = () => {
+      isResizing.current = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }, []);
 
   const handleRefresh = async () => {
     toast.loading('Fetching latest vehicle data...', {
       id: 'vehicle-refresh',
-      style: { background: '#1a1e30', color: '#fff' },
+      style: { background: '#18181b', color: '#fafafa' },
     });
 
     try {
       await refetch();
       toast.success('Vehicle data updated', {
         id: 'vehicle-refresh',
-        style: { background: '#1a1e30', color: '#fff' },
+        style: { background: '#18181b', color: '#fafafa' },
       });
     } catch (err) {
       toast.error('Failed to update vehicle data', {
         id: 'vehicle-refresh',
-        style: { background: '#1a1e30', color: '#fff' },
+        style: { background: '#18181b', color: '#fafafa' },
       });
     }
   };
@@ -110,7 +137,7 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
           minHeight: 'calc(100vh - 72px)',
         }}
       >
-        <CircularProgress sx={{ color: '#ffffff' }} />
+        <CircularProgress sx={{ color: '#0ea5e9' }} />
       </Box>
     );
   }
@@ -127,14 +154,14 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
           gap: 2,
         }}
       >
-        <Typography sx={{ color: '#ffffff' }}>
+        <Typography sx={{ color: '#fafafa' }}>
           Error loading vehicle data: {error.message}
         </Typography>
         <Button
           onClick={handleRefresh}
           startIcon={<RefreshIcon />}
           variant="outlined"
-          sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)' }}
+          sx={{ color: '#fafafa', borderColor: 'rgba(14, 165, 233, 0.45)' }}
         >
           Retry
         </Button>
@@ -147,11 +174,10 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
 
   const cardSx = {
     elevation: 0,
-    backgroundColor: 'rgba(15, 25, 45, 0.65)',
-    backgroundImage: 'linear-gradient(135deg, rgba(20, 30, 60, 0.6), rgba(30, 20, 50, 0.6))',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     backdropFilter: 'blur(15px)',
     borderRadius: 3,
-    border: '1px solid rgba(255, 255, 255, 0.15)',
+    border: '1px solid rgba(255, 255, 255, 0.07)',
     overflow: 'hidden',
   };
 
@@ -159,33 +185,19 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
     p: 2,
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
     borderRadius: 1,
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
   };
 
   return (
-    <Container maxWidth="xl" sx={{ pt: 2, pb: 4 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 3,
-          alignItems: 'stretch',
-          minHeight: 'calc(100vh - 120px)',
-        }}
-      >
-        {/* ── Left Column: Vehicle Status ── */}
-        <Card
-          elevation={0}
-          sx={{
-            flex: 1,
-            ...cardSx,
-          }}
-        >
+    <>
+      <Container maxWidth="md" sx={{ pt: 2, pb: 4 }}>
+        <Card elevation={0} sx={cardSx}>
           <CardContent sx={{ p: 3 }}>
             {/* Vehicle model name */}
             <Box sx={{ textAlign: 'center', mb: 3 }}>
               <Typography
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
+                  color: '#a1a1aa',
                   fontSize: '0.9rem',
                   fontWeight: 500,
                   letterSpacing: '0.1em',
@@ -196,38 +208,66 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
               </Typography>
             </Box>
 
-            {/* Car image or placeholder */}
-            <Box sx={{ textAlign: 'center', mb: 3 }}>
-              {!carImageError ? (
-                <img
-                  src={`${process.env.PUBLIC_URL}/images/porsche.png`}
-                  alt="Vehicle"
-                  onError={() => setCarImageError(true)}
-                  style={{
-                    width: '100%',
-                    maxWidth: '500px',
-                    height: 'auto',
-                  }}
-                />
-              ) : (
-                <Box
+            {/* Car image with ALL GOOD behind it */}
+            <Box sx={{ position: 'relative', textAlign: 'center', mb: 3 }}>
+              {/* ALL GOOD sits behind the car */}
+              <Box sx={{ position: 'relative', zIndex: 0, mb: -14 }}>
+                <Typography
                   sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    maxWidth: 500,
-                    height: 200,
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: 2,
-                    border: '2px dashed rgba(255, 255, 255, 0.2)',
+                    fontSize: '4.5rem',
+                    fontWeight: 700,
+                    color: 'rgba(14, 165, 233, 0.2)',
+                    lineHeight: 1,
+                    mb: 0.5,
                   }}
                 >
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.9rem' }}>
-                    Car Image
-                  </Typography>
-                </Box>
-              )}
+                  ALL
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '4.5rem',
+                    fontWeight: 700,
+                    color: 'rgba(14, 165, 233, 0.2)',
+                    lineHeight: 1,
+                  }}
+                >
+                  GOOD
+                </Typography>
+              </Box>
+
+              {/* Car image sits in front */}
+              <Box sx={{ position: 'relative', zIndex: 1 }}>
+                {!carImageError ? (
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/porsche.png`}
+                    alt="Vehicle"
+                    onError={() => setCarImageError(true)}
+                    style={{
+                      width: '100%',
+                      maxWidth: '500px',
+                      height: 'auto',
+                    }}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      maxWidth: 500,
+                      height: 200,
+                      backgroundColor: 'rgba(14, 165, 233, 0.04)',
+                      borderRadius: 2,
+                      border: '2px dashed rgba(14, 165, 233, 0.22)',
+                    }}
+                  >
+                    <Typography sx={{ color: 'rgba(14, 165, 233, 0.45)', fontSize: '0.9rem' }}>
+                      Car Image
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </Box>
 
             {/* Lock status */}
@@ -240,29 +280,24 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
                   width: 48,
                   height: 48,
                   borderRadius: '50%',
-                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  border: '2px solid rgba(14, 165, 233, 0.4)',
                   mb: 1,
                 }}
               >
                 {vehicle?.isLocked ? (
-                  <LockIcon sx={{ color: '#ffffff', fontSize: 24 }} />
+                  <LockIcon sx={{ color: '#0ea5e9', fontSize: 24 }} />
                 ) : (
-                  <LockOpenIcon sx={{ color: '#ffffff', fontSize: 24 }} />
+                  <LockOpenIcon sx={{ color: '#0ea5e9', fontSize: 24 }} />
                 )}
               </Box>
-              <Typography
-                sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  fontSize: '0.8rem',
-                }}
-              >
+              <Typography sx={{ color: '#a1a1aa', fontSize: '0.8rem' }}>
                 {vehicle?.isLocked ? 'Locked' : 'Unlocked'}
               </Typography>
               {vehicle?.lastUpdated && (
                 <Typography
                   variant="caption"
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    color: 'rgba(126, 168, 201, 0.6)',
                     fontSize: '0.75rem',
                     display: 'block',
                     mt: 0.5,
@@ -284,10 +319,10 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <BatteryIcon sx={{ color: '#ffffff', fontSize: 20 }} />
-                  <Typography sx={{ color: '#ffffff', fontSize: '0.9rem' }}>Battery</Typography>
+                  <BatteryIcon sx={{ color: '#0ea5e9', fontSize: 20 }} />
+                  <Typography sx={{ color: '#fafafa', fontSize: '0.9rem' }}>Battery</Typography>
                 </Box>
-                <Typography sx={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: 600 }}>
+                <Typography sx={{ color: '#fafafa', fontSize: '1.1rem', fontWeight: 600 }}>
                   {vehicle?.batteryLevel ?? 0}
                   <span style={{ fontSize: '0.85rem' }}> %</span>
                 </Typography>
@@ -298,16 +333,16 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
                 sx={{
                   height: 6,
                   borderRadius: 1,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  backgroundColor: 'rgba(14, 165, 233, 0.15)',
                   '& .MuiLinearProgress-bar': {
-                    backgroundColor: '#ffffff',
+                    backgroundColor: '#0ea5e9',
                     borderRadius: 1,
                   },
                 }}
               />
             </Box>
 
-            {/* Stats grid: 2×2 */}
+            {/* Stats grid: 2x2 */}
             <Box
               sx={{
                 mt: 3,
@@ -316,53 +351,45 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
                 gap: 2,
               }}
             >
-              {/* Range */}
               <Box sx={statBoxSx}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                  <SpeedIcon sx={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }} />
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.75rem' }}>
-                    Range
-                  </Typography>
+                  <SpeedIcon sx={{ color: 'rgba(14, 165, 233, 0.6)', fontSize: 14 }} />
+                  <Typography sx={{ color: '#a1a1aa', fontSize: '0.75rem' }}>Range</Typography>
                 </Box>
-                <Typography sx={{ color: '#ffffff', fontSize: '1.2rem', fontWeight: 600 }}>
+                <Typography sx={{ color: '#fafafa', fontSize: '1.2rem', fontWeight: 600 }}>
                   {vehicle?.rangeKm?.toLocaleString() ?? 0} km
                 </Typography>
               </Box>
 
-              {/* Total km */}
               <Box sx={statBoxSx}>
-                <Typography
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.75rem', mb: 0.5 }}
-                >
+                <Typography sx={{ color: '#a1a1aa', fontSize: '0.75rem', mb: 0.5 }}>
                   Total km
                 </Typography>
-                <Typography sx={{ color: '#ffffff', fontSize: '1.2rem', fontWeight: 600 }}>
+                <Typography sx={{ color: '#fafafa', fontSize: '1.2rem', fontWeight: 600 }}>
                   {vehicle?.totalKm?.toLocaleString() ?? 0} km
                 </Typography>
               </Box>
 
-              {/* Next service */}
               <Box sx={statBoxSx}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                  <BuildIcon sx={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }} />
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.75rem' }}>
+                  <BuildIcon sx={{ color: 'rgba(14, 165, 233, 0.6)', fontSize: 14 }} />
+                  <Typography sx={{ color: '#a1a1aa', fontSize: '0.75rem' }}>
                     Next Service
                   </Typography>
                 </Box>
-                <Typography sx={{ color: '#ffffff', fontSize: '1.2rem', fontWeight: 600 }}>
+                <Typography sx={{ color: '#fafafa', fontSize: '1.2rem', fontWeight: 600 }}>
                   {vehicle?.nextServiceKm?.toLocaleString() ?? 0} km
                 </Typography>
               </Box>
 
-              {/* Tire pressure */}
               <Box sx={statBoxSx}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                  <TireIcon sx={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }} />
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.75rem' }}>
+                  <TireIcon sx={{ color: 'rgba(14, 165, 233, 0.6)', fontSize: 14 }} />
+                  <Typography sx={{ color: '#a1a1aa', fontSize: '0.75rem' }}>
                     Tire Pressure
                   </Typography>
                 </Box>
-                <Typography sx={{ color: '#ffffff', fontSize: '1.2rem', fontWeight: 600 }}>
+                <Typography sx={{ color: '#fafafa', fontSize: '1.2rem', fontWeight: 600 }}>
                   {vehicle?.tirePressure ?? 0} Bar
                 </Typography>
               </Box>
@@ -376,12 +403,12 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
                 variant="outlined"
                 size="small"
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  color: '#a1a1aa',
+                  borderColor: 'rgba(14, 165, 233, 0.3)',
                   textTransform: 'none',
                   '&:hover': {
-                    borderColor: 'rgba(255, 255, 255, 0.6)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderColor: 'rgba(14, 165, 233, 0.6)',
+                    backgroundColor: 'rgba(14, 165, 233, 0.07)',
                   },
                 }}
               >
@@ -390,19 +417,93 @@ export const Overview: React.FC<OverviewProps> = ({ userEmail }) => {
             </Box>
           </CardContent>
         </Card>
+      </Container>
 
-        {/* ── Right Column: Chat Panel ── */}
+      {/* Chat FAB */}
+      <Tooltip title="Chat with your Car" placement="left">
+        <Fab
+          onClick={() => setChatOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+            backgroundColor: '#0ea5e9',
+            color: '#fff',
+            '&:hover': {
+              backgroundColor: '#0284c7',
+            },
+          }}
+        >
+          <ChatIcon />
+        </Fab>
+      </Tooltip>
+
+      {/* Chat Drawer */}
+      <Drawer
+        anchor="right"
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        PaperProps={{
+          sx: {
+            width: { xs: '100vw', sm: drawerWidth },
+            height: '100vh',
+            backgroundColor: '#09090b',
+            backgroundImage: 'none',
+            borderLeft: '1px solid rgba(255, 255, 255, 0.07)',
+            display: 'flex',
+            flexDirection: 'row',
+            p: 0,
+            boxSizing: 'border-box',
+            overflow: 'hidden',
+          },
+        }}
+      >
+        {/* Resize handle */}
+        <Box
+          onMouseDown={handleResizeStart}
+          sx={{
+            width: 4,
+            flexShrink: 0,
+            cursor: 'col-resize',
+            backgroundColor: 'transparent',
+            transition: 'background-color 0.15s',
+            '&:hover': { backgroundColor: 'rgba(14, 165, 233, 0.4)' },
+            '&:active': { backgroundColor: 'rgba(14, 165, 233, 0.7)' },
+          }}
+        />
+
+        {/* Content — matches the main page vertical rhythm: pt aligns with nav + container top */}
         <Box
           sx={{
-            flex: 0.5,
+            flex: 1,
             minWidth: 0,
             display: 'flex',
             flexDirection: 'column',
+            pt: '80px',
+            pb: 4,
+            pr: 2,
+            pl: 1,
+            boxSizing: 'border-box',
           }}
         >
-          <ChatPanel vehicleId={vehicle?.id} height="100%" />
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              backdropFilter: 'blur(15px)',
+              borderRadius: 3,
+              border: '1px solid rgba(255, 255, 255, 0.07)',
+              overflow: 'hidden',
+              p: 2.5,
+            }}
+          >
+            <ChatPanel vehicleId={vehicle?.id} height="100%" onClose={() => setChatOpen(false)} />
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Drawer>
+    </>
   );
 };

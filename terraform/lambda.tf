@@ -46,7 +46,7 @@ resource "aws_lambda_function" "chat" {
       COGNITO_REGION        = var.aws_region
       GRAPHQL_API_URL       = "${aws_apigatewayv2_api.main.api_endpoint}/graphql"
       BEDROCK_REGION        = "us-east-1"
-      BEDROCK_MODEL_ID      = "us.anthropic.claude-sonnet-4-6-20250514-v1:0"
+      BEDROCK_MODEL_ID      = "us.anthropic.claude-sonnet-4-6"
       AGENTCORE_MEMORY_ID   = var.agentcore_memory_id
     }
   }
