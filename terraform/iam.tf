@@ -253,30 +253,8 @@ data "aws_iam_policy_document" "github_actions_deploy" {
 
   # Firehose backup S3 bucket
   statement {
-    effect = "Allow"
-    actions = [
-      "s3:CreateBucket",
-      "s3:DeleteBucket",
-      "s3:GetBucketLocation",
-      "s3:GetBucketTagging",
-      "s3:PutBucketTagging",
-      "s3:GetLifecycleConfiguration",
-      "s3:PutLifecycleConfiguration",
-      "s3:GetBucketAcl",
-      "s3:GetBucketCORS",
-      "s3:GetBucketLogging",
-      "s3:GetBucketObjectLockConfiguration",
-      "s3:GetBucketPolicy",
-      "s3:GetBucketPolicyStatus",
-      "s3:GetBucketPublicAccessBlock",
-      "s3:GetBucketRequestPayment",
-      "s3:GetBucketVersioning",
-      "s3:GetBucketWebsite",
-      "s3:GetEncryptionConfiguration",
-      "s3:GetReplicationConfiguration",
-      "s3:GetAccelerateConfiguration",
-      "s3:ListBucket",
-    ]
+    effect  = "Allow"
+    actions = ["s3:CreateBucket", "s3:DeleteBucket", "s3:Get*", "s3:List*", "s3:Put*"]
     resources = [
       "arn:aws:s3:::${var.app_name}-firehose-backup-${data.aws_caller_identity.current.account_id}",
       "arn:aws:s3:::${var.app_name}-firehose-backup-${data.aws_caller_identity.current.account_id}/*",

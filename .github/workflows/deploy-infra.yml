@@ -51,6 +51,9 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Terraform Apply (IAM policy only)
+        run: terraform apply -auto-approve -target=aws_iam_role_policy.github_actions_deploy
+
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
