@@ -21,12 +21,6 @@ from strands.models import BedrockModel, CacheConfig
 
 import graphql_client
 
-try:
-    import newrelic.agent
-    newrelic.agent.initialize()
-    _nr_available = True
-except Exception:
-    _nr_available = False
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -217,10 +211,5 @@ async def chat(raw_request: Request, request: ChatRequest):
 _mangum = Mangum(app)
 
 
-if _nr_available:
-    @newrelic.agent.lambda_handler()  # type: ignore[name-defined]
-    def handler(event, context):
-        return _mangum(event, context)
-else:
-    def handler(event, context):
-        return _mangum(event, context)
+def handler(event, context):
+    return _mangum(event, context)

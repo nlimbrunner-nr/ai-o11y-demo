@@ -31,7 +31,7 @@ resource "aws_lambda_function" "chat" {
   role          = aws_iam_role.chat_lambda.arn
 
   runtime          = "python3.12"
-  handler          = "handler.handler"
+  handler          = "newrelic_lambda_wrapper.handler"
   filename         = data.archive_file.chat_placeholder.output_path
   source_code_hash = data.archive_file.chat_placeholder.output_base64sha256
 
