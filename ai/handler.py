@@ -207,4 +207,8 @@ async def chat(raw_request: Request, request: ChatRequest):
 # ---------------------------------------------------------------------------
 # Lambda entry point
 # ---------------------------------------------------------------------------
-handler = Mangum(app)
+_mangum = Mangum(app)
+
+
+def handler(event, context):
+    return _mangum(event, context)
