@@ -1,4 +1,4 @@
-# sdfaasdfasdfasdf---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Dummy zip archives — replaced by CI/CD on real deploys
 # ---------------------------------------------------------------------------
 
@@ -31,13 +31,18 @@ resource "aws_lambda_function" "chat" {
   role          = aws_iam_role.chat_lambda.arn
 
   runtime          = "python3.12"
-  handler          = "handler.handler"
+  handler          = "newrelic_lambda_wrapper.handler"
   filename         = data.archive_file.chat_placeholder.output_path
   source_code_hash = data.archive_file.chat_placeholder.output_base64sha256
 
   architectures = ["arm64"]
   timeout       = 60
   memory_size   = 512
+
+  layers = [
+    local.nr_python312_arm64_layer,
+    local.nr_extension_arm64_layer,
+  ]
 
   environment {
     variables = {
@@ -48,6 +53,11 @@ resource "aws_lambda_function" "chat" {
       BEDROCK_REGION        = "us-east-1"
       BEDROCK_MODEL_ID      = "us.anthropic.claude-sonnet-4-6"
       AGENTCORE_MEMORY_ID   = var.agentcore_memory_id
+
+      NEW_RELIC_ACCOUNT_ID                   = tostring(var.new_relic_account_id)
+      NEW_RELIC_LICENSE_KEY                  = var.new_relic_license_key
+      NEW_RELIC_LAMBDA_HANDLER               = "handler.handler"
+      NEW_RELIC_EXTENSION_SEND_FUNCTION_LOGS = "true"
     }
   }
 
@@ -81,6 +91,18 @@ resource "aws_lambda_function" "graphql" {
   architectures = ["arm64"]
   timeout       = 30
   memory_size   = 128
+
+  layers = [
+    local.nr_extension_arm64_layer,
+  ]
+
+  environment {
+    variables = {
+      NEW_RELIC_ACCOUNT_ID                   = tostring(var.new_relic_account_id)
+      NEW_RELIC_LICENSE_KEY                  = var.new_relic_license_key
+      NEW_RELIC_EXTENSION_SEND_FUNCTION_LOGS = "true"
+    }
+  }
 
   tags = {
     Project   = "ai-o11y"
