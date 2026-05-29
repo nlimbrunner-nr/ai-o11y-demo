@@ -214,7 +214,8 @@ resource "aws_iam_role_policy_attachment" "newrelic_integration_readonly" {
 # ---------------------------------------------------------------------------
 
 resource "newrelic_cloud_aws_link_account" "main" {
-  account_id = var.new_relic_account_id
-  arn        = aws_iam_role.newrelic_integration.arn
-  name       = "${var.app_name} AWS"
+  account_id             = var.new_relic_account_id
+  arn                    = aws_iam_role.newrelic_integration.arn
+  name                   = "${var.app_name} AWS"
+  metric_collection_mode = "PUSH"
 }
