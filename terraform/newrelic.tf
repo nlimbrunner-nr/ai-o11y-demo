@@ -22,7 +22,7 @@ variable "new_relic_api_key" {
 variable "nr_python312_arm64_layer_version" {
   description = "New Relic Python 3.12 ARM64 layer version. See https://layers.newrelic-external.com/"
   type        = number
-  default     = 119
+  default     = 70
 }
 
 variable "nr_extension_arm64_layer_version" {
