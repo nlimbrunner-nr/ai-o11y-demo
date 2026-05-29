@@ -57,7 +57,10 @@ resource "aws_lambda_function" "chat" {
       NEW_RELIC_ACCOUNT_ID                   = tostring(var.new_relic_account_id)
       NEW_RELIC_LICENSE_KEY                  = var.new_relic_license_key
       NEW_RELIC_LAMBDA_HANDLER               = "handler.handler"
-      NEW_RELIC_EXTENSION_SEND_FUNCTION_LOGS = "true"
+      NEW_RELIC_EXTENSION_SEND_FUNCTION_LOGS        = "true"
+      NEW_RELIC_DISTRIBUTED_TRACING_ENABLED         = "true"
+      NEW_RELIC_AI_MONITORING_ENABLED               = "true"
+      NEW_RELIC_AI_MONITORING_RECORD_CONTENT_ENABLED = "true"
     }
   }
 
