@@ -251,6 +251,71 @@ data "aws_iam_policy_document" "github_actions_deploy" {
     resources = ["*"]
   }
 
+  # Firehose backup S3 bucket
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:CreateBucket",
+      "s3:DeleteBucket",
+      "s3:GetBucketLocation",
+      "s3:GetBucketTagging",
+      "s3:PutBucketTagging",
+      "s3:GetLifecycleConfiguration",
+      "s3:PutLifecycleConfiguration",
+      "s3:GetBucketAcl",
+      "s3:GetBucketCORS",
+      "s3:GetBucketLogging",
+      "s3:GetBucketObjectLockConfiguration",
+      "s3:GetBucketPolicy",
+      "s3:GetBucketPolicyStatus",
+      "s3:GetBucketPublicAccessBlock",
+      "s3:GetBucketRequestPayment",
+      "s3:GetBucketVersioning",
+      "s3:GetEncryptionConfiguration",
+      "s3:GetReplicationConfiguration",
+      "s3:GetAccelerateConfiguration",
+      "s3:ListBucket",
+    ]
+    resources = [
+      "arn:aws:s3:::${var.app_name}-firehose-backup-${data.aws_caller_identity.current.account_id}",
+      "arn:aws:s3:::${var.app_name}-firehose-backup-${data.aws_caller_identity.current.account_id}/*",
+    ]
+  }
+
+  # Kinesis Firehose
+  statement {
+    effect = "Allow"
+    actions = [
+      "firehose:CreateDeliveryStream",
+      "firehose:DeleteDeliveryStream",
+      "firehose:DescribeDeliveryStream",
+      "firehose:UpdateDestination",
+      "firehose:TagDeliveryStream",
+      "firehose:UntagDeliveryStream",
+      "firehose:ListTagsForDeliveryStream",
+    ]
+    resources = [
+      "arn:aws:firehose:${var.aws_region}:${data.aws_caller_identity.current.account_id}:deliverystream/${var.app_name}-*",
+    ]
+  }
+
+  # CloudWatch Metric Streams
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudwatch:PutMetricStream",
+      "cloudwatch:GetMetricStream",
+      "cloudwatch:DeleteMetricStreams",
+      "cloudwatch:StartMetricStreams",
+      "cloudwatch:StopMetricStreams",
+      "cloudwatch:ListMetricStreams",
+      "cloudwatch:TagResource",
+      "cloudwatch:UntagResource",
+      "cloudwatch:ListTagsForResource",
+    ]
+    resources = ["*"]
+  }
+
   # API Gateway v2 — full lifecycle
   statement {
     effect = "Allow"
