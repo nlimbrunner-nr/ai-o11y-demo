@@ -6,13 +6,15 @@ import (
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/graphql-go/graphql"
+	"github.com/newrelic/go-agent/v3/integrations/nrlambda"
+	"github.com/newrelic/go-agent/v3/newrelic"
 
 	"github.com/ai-o11y/backend/graph"
 )
 
 var schema graphql.Schema
+var nrApp *newrelic.Application
 
 func init() {
 	resolver := &graph.Resolver{}
@@ -20,6 +22,11 @@ func init() {
 	schema, err = graph.NewSchema(resolver)
 	if err != nil {
 		log.Fatalf("failed to build GraphQL schema: %v", err)
+	}
+
+	nrApp, err = newrelic.NewApplication(newrelic.ConfigFromEnvironment())
+	if err != nil {
+		log.Printf("New Relic agent disabled: %v", err)
 	}
 }
 
@@ -96,5 +103,5 @@ func handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.AP
 }
 
 func main() {
-	lambda.Start(handler)
+	nrlambda.Start(handler, nrApp)
 }
