@@ -54,6 +54,9 @@ jobs:
       - name: Terraform Apply (IAM policy only)
         run: terraform apply -auto-approve -target=aws_iam_role_policy.github_actions_deploy
 
+      - name: Wait for IAM propagation
+        run: sleep 15
+
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
