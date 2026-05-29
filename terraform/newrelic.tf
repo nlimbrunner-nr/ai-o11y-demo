@@ -26,9 +26,9 @@ variable "nr_python312_arm64_layer_version" {
 }
 
 variable "nr_extension_arm64_layer_version" {
-  description = "New Relic Lambda Extension ARM64 layer version. See https://layers.newrelic-external.com/"
+  description = "New Relic Lambda Extension ARM64 layer version (used by Go Lambda only — Python layer bundles its own extension). See https://layers.newrelic-external.com/"
   type        = number
-  default     = 71
+  default     = 55
 }
 
 variable "new_relic_region" {

@@ -39,9 +39,9 @@ resource "aws_lambda_function" "chat" {
   timeout       = 60
   memory_size   = 512
 
+  # Python layer bundles the NR extension — no separate extension layer needed
   layers = [
     local.nr_python312_arm64_layer,
-    local.nr_extension_arm64_layer,
   ]
 
   environment {
@@ -54,13 +54,16 @@ resource "aws_lambda_function" "chat" {
       BEDROCK_MODEL_ID      = "us.anthropic.claude-sonnet-4-6"
       AGENTCORE_MEMORY_ID   = var.agentcore_memory_id
 
-      NEW_RELIC_APP_NAME                            = "ai-o11y-chat"
-      NEW_RELIC_ACCOUNT_ID                          = tostring(var.new_relic_account_id)
-      NEW_RELIC_LICENSE_KEY                         = var.new_relic_license_key
-      NEW_RELIC_SERVERLESS_MODE_ENABLED             = "true"
-      NEW_RELIC_EXTENSION_SEND_FUNCTION_LOGS        = "true"
-      NEW_RELIC_DISTRIBUTED_TRACING_ENABLED         = "true"
-      NEW_RELIC_AI_MONITORING_ENABLED               = "true"
+      NEW_RELIC_APP_NAME                             = "ai-o11y-chat"
+      NEW_RELIC_ACCOUNT_ID                           = tostring(var.new_relic_account_id)
+      NEW_RELIC_LICENSE_KEY                          = var.new_relic_license_key
+      NEW_RELIC_LAMBDA_HANDLER                       = "handler.handler"
+      NEW_RELIC_LAMBDA_EXTENSION_ENABLED             = "true"
+      NEW_RELIC_APM_LAMBDA_MODE                      = "true"
+      NEW_RELIC_DATA_COLLECTION_TIMEOUT              = "10s"
+      NEW_RELIC_EXTENSION_SEND_FUNCTION_LOGS         = "true"
+      NEW_RELIC_DISTRIBUTED_TRACING_ENABLED          = "true"
+      NEW_RELIC_AI_MONITORING_ENABLED                = "true"
       NEW_RELIC_AI_MONITORING_RECORD_CONTENT_ENABLED = "true"
     }
   }
