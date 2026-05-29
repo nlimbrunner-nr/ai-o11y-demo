@@ -154,6 +154,13 @@ data "aws_iam_policy_document" "github_actions_deploy" {
     ]
   }
 
+  # Lambda layer access — needed to attach New Relic layers (published in NR's AWS account)
+  statement {
+    effect    = "Allow"
+    actions   = ["lambda:GetLayerVersion"]
+    resources = ["arn:aws:lambda:${var.aws_region}:451483290750:layer:NewRelic*:*"]
+  }
+
   # Lambda — full lifecycle + permissions management
   statement {
     effect = "Allow"

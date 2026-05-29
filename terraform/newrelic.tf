@@ -20,15 +20,21 @@ variable "new_relic_api_key" {
 }
 
 variable "nr_python312_arm64_layer_version" {
-  description = "New Relic Python 3.12 ARM64 layer version. See https://layers.newrelic-external.com/"
+  description = "New Relic Python ARM64 layer version. See https://layers.newrelic-external.com/"
   type        = number
-  default     = 21
+  default     = 7
 }
 
 variable "nr_extension_arm64_layer_version" {
   description = "New Relic Lambda Extension ARM64 layer version. See https://layers.newrelic-external.com/"
   type        = number
   default     = 13
+}
+
+variable "new_relic_region" {
+  description = "New Relic data center region: US or EU. Check NR UI — if your URL is one.eu.newrelic.com it's EU, otherwise US."
+  type        = string
+  default     = "US"
 }
 
 # ---------------------------------------------------------------------------
@@ -38,7 +44,7 @@ variable "nr_extension_arm64_layer_version" {
 provider "newrelic" {
   account_id = var.new_relic_account_id
   api_key    = var.new_relic_api_key
-  region     = "US"
+  region     = var.new_relic_region
 }
 
 # ---------------------------------------------------------------------------
@@ -47,7 +53,7 @@ provider "newrelic" {
 # ---------------------------------------------------------------------------
 
 locals {
-  nr_python312_arm64_layer = "arn:aws:lambda:${var.aws_region}:451483290750:layer:NewRelicPython312ARM64:${var.nr_python312_arm64_layer_version}"
+  nr_python312_arm64_layer = "arn:aws:lambda:${var.aws_region}:451483290750:layer:NewRelicPythonARM64:${var.nr_python312_arm64_layer_version}"
   nr_extension_arm64_layer = "arn:aws:lambda:${var.aws_region}:451483290750:layer:NewRelicLambdaExtensionARM64:${var.nr_extension_arm64_layer_version}"
 }
 
